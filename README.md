@@ -19,9 +19,9 @@
 
 World action models (WAMs) advance robotic manipulation by grounding control in visual foresight, yet existing formulations remain single-embodiment. **MAWAM** introduces the **agent** as a first-class modeling axis inside one weight-shared causal diffusion transformer:
 
-1. **MA-Task Harness (`ma_task_harness/`)**: A three-stage coding-agent co-evolution framework that formalizes *multi-agent-necessary* tasks along three axes (*why*, *when*, *who*) into a `TaskSpec`, co-evolves generation ($G^{(n)}$) and evaluation ($E^{(n)}$) sub-agents under deterministic LLM-free gates, and certifies labels with operational verification probes.
-2. **MA-Bench (`ma_bench/`)**: Seven closed-loop multi-robot tasks spanning asynchronous handoffs, cross-table partial observability, partially synchronous holds, and synchronous $SE(3)$ / dynamic co-manipulation across homogeneous and heterogeneous robot teams, scored by 43 deterministic milestones ($S_k$, $S_{\mathrm{collab}}$, $\mathrm{SR}$).
-3. **MAWAM Model, Training & Inference (`mawam/`)**: Joint spatiotemporal imagination via weight-shared joint causal self-attention, hierarchical gated global + local language conditioning, fixed Fourier physical ID + normalized role encodings, two-stage agent-axis curriculum (Stage 1 $N{=}1 \to$ Stage 2 $N{>}1$), and both benchmark (`25/50` steps) and accelerated real-time (`4/8` steps, `0.72 s/chunk`) closed-loop inference.
+1. **MA-Task Harness (`ma_task_harness/`)**: A three-stage coding-agent co-evolution framework that formalizes *multi-agent-necessary* tasks along three axes (*why*, *when*, *who*) into a `TaskSpec`, co-evolves generation ($`G^{(n)}`$) and evaluation ($`E^{(n)}`$) sub-agents under deterministic LLM-free gates, and certifies labels with operational verification probes.
+2. **MA-Bench (`ma_bench/`)**: Seven closed-loop multi-robot tasks spanning asynchronous handoffs, cross-table partial observability, partially synchronous holds, and synchronous $`SE(3)`$ / dynamic co-manipulation across homogeneous and heterogeneous robot teams, scored by 43 deterministic milestones ($`S_k`$, $`S_{\mathrm{collab}}`$, $`\mathrm{SR}`$).
+3. **MAWAM Model, Training & Inference (`mawam/`)**: Joint spatiotemporal imagination via weight-shared joint causal self-attention, hierarchical gated global + local language conditioning, fixed Fourier physical ID + normalized role encodings, two-stage agent-axis curriculum (Stage 1 $`N = 1`$ → Stage 2 $`N > 1`$), and both benchmark (`25/50` steps) and accelerated real-time (`4/8` steps, `0.72 s/chunk`) closed-loop inference.
 
 ---
 
@@ -76,7 +76,7 @@ pip install -e .
 
 ### 2. Model Training & Inference Environment (CUDA GPU)
 
-Requires CUDA-enabled PyTorch ($\ge 2.5$, tested with PyTorch 2.9 on NVIDIA H20 GPUs) and an upstream [LingBot-VA](https://github.com/Robbyant/lingbot-va) checkout (`--upstream-root ./third_party/LingBot-VA`):
+Requires CUDA-enabled PyTorch (≥ 2.5, tested with PyTorch 2.9 on NVIDIA H20 GPUs) and an upstream [LingBot-VA](https://github.com/Robbyant/lingbot-va) checkout (`--upstream-root ./third_party/LingBot-VA`):
 
 ```bash
 pip install -r requirements-model.txt
@@ -94,10 +94,10 @@ pip install -r requirements-sim.txt
 
 ## 1. MA-Task Harness
 
-MA-Task Harness operationalizes the *Why–When–Who* task taxonomy (§3.1–3.2, Appendix A–B) for **any user-defined multi-robot task** ($N \ge 2$ homogeneous or heterogeneous robots; our 7 MA-Bench specs live in `ma_task_harness/examples/mabench/` as reference examples):
-- **Stage 1 (Specification — `specify`)**: Clarifies team capabilities $\mathcal{E}_k=(\mathcal{O}_k,\mathcal{W}_k,\mathcal{U}_k)$, hierarchical prompts $(g, \{\ell^k\})$, named thresholds, open-ended milestones $(M_k, M_{\mathrm{collab}})$, and probes into a validated `TaskSpec.yaml`.
-- **Stage 2 (Bidirectional Code Co-Evolution — `coevolve`)**: Spawns isolated `generator` ($G^{(n)}$, writing `gen/scene.py` and `gen/expert.py`) and `evaluator` ($E^{(n)}$, writing deterministic LLM-free `eval/evaluator.py`) workspaces exchanging only disk artifacts (`audit_report.json`, `counter_audit.json`), verified every round in an isolated subprocess against universal physical gates (i)–(iv), Eq. (4)–(5) contracts, and Appendix A probes.
-- **Stage 3 (Certification, Freeze & Trace Viewer — `verify-pkg`, `render-trace`)**: Certifies `single_<k>`, $O \prec W \prec U$ relaxations, `serialize`, delay sweeps, and `role_swap` before freezing a SHA-256 verified task package and rendering a standalone interactive HTML trace report.
+MA-Task Harness operationalizes the *Why–When–Who* task taxonomy (§3.1–3.2, Appendix A–B) for **any user-defined multi-robot task** ($`N \ge 2`$ homogeneous or heterogeneous robots; our 7 MA-Bench specs live in `ma_task_harness/examples/mabench/` as reference examples):
+- **Stage 1 (Specification — `specify`)**: Clarifies team capabilities $`\mathcal{E}_k = (\mathcal{O}_k, \mathcal{W}_k, \mathcal{U}_k)`$, hierarchical prompts $`(g, \{\ell^k\})`$, named thresholds, open-ended milestones $`(M_k, M_{\mathrm{collab}})`$, and probes into a validated `TaskSpec.yaml`.
+- **Stage 2 (Bidirectional Code Co-Evolution — `coevolve`)**: Spawns isolated `generator` ($`G^{(n)}`$, writing `gen/scene.py` and `gen/expert.py`) and `evaluator` ($`E^{(n)}`$, writing deterministic LLM-free `eval/evaluator.py`) workspaces exchanging only disk artifacts (`audit_report.json`, `counter_audit.json`), verified every round in an isolated subprocess against universal physical gates (i)–(iv), Eq. (4)–(5) contracts, and Appendix A probes.
+- **Stage 3 (Certification, Freeze & Trace Viewer — `verify-pkg`, `render-trace`)**: Certifies `single_<k>`, $`O \prec W \prec U`$ relaxations, `serialize`, delay sweeps, and `role_swap` before freezing a SHA-256 verified task package and rendering a standalone interactive HTML trace report.
 
 ### Author Any Custom Multi-Robot Task
 
@@ -170,11 +170,11 @@ hf download EmbodiedCity/MA-Bench \
 
 ### Main Simulation Results (Table 2, 100 Independent Trials per Task)
 
-| Method | Mean Role $S_k$ (%) | Mean Collab $S_{\mathrm{collab}}$ (%) | Mean Joint $\mathrm{SR}$ (%) |
+| Method | Mean Role $`S_k`$ (%) | Mean Collab $`S_{\mathrm{collab}}`$ (%) | Mean Joint $`\mathrm{SR}`$ (%) |
 | --- | :---: | :---: | :---: |
-| $\pi_{0.5}$ (per-robot) | 31.4 | 15.1 | 10.0 |
+| $`\pi_{0.5}`$ (per-robot) | 31.4 | 15.1 | 10.0 |
 | LingBot-VA (per-robot) | 81.9 | 60.6 | 52.0 |
-| $\pi_{0.5}$ (joint) | 4.4 | 0.1 | 0.0 |
+| $`\pi_{0.5}`$ (joint) | 4.4 | 0.1 | 0.0 |
 | LingBot-VA (joint) | 40.9 | 18.4 | 13.7 |
 | MA-VLA | 41.6 | 21.1 | 14.9 |
 | VLA-Fabric | 45.5 | 24.0 | 17.1 |
@@ -188,13 +188,13 @@ hf download EmbodiedCity/MA-Bench \
 
 | Component | Setting |
 | --- | --- |
-| **Backbone** | `Stage2WanTransformer3DModel` built on `robbyant/lingbot-va-base` (30 DiT blocks, 24 heads $\times$ 128, FFN 14336, ~6.24B params with global CA) |
-| **Encodings & Gates** | Fixed unit-RMS Fourier physical IDs $\phi(n_k)$ + RMS-normalized mean role vector $r_k$ ($\beta=0.01$); global CA gate $\gamma_b=10^{-3}$ |
-| **Unified Action Slots** | Shared 30-D slot layout with binary embodiment mask $m_{e_k}$: ALOHA 16-D (`[0..13, 28, 29]`), Panda/UR5/FR3 8-D (`[0..6, 28]`), Cobot 14-D (`[0..5, 7..12, 28, 29]`) |
-| **Video Canvas** | 3 RGB views/robot tiled onto `24×20` latent canvas (head `16×20`, wrists `8×10` each, `48` channels, patch `1×2×2` $\to$ 120 tokens/frame); missing single-arm right wrist view-masked in loss |
-| **Optimization** | 8$\times$ NVIDIA H20 GPUs, FSDP2 `bfloat16`, full activation checkpointing, batch size 8 episodes, AdamW $\beta=(0.9, 0.95)$, weight decay `0.1`, grad clip `2.0`, constant LR `1e-5` (`1e-4`, zero decay for $\gamma_b$) |
-| **Curriculum** | **Stage 1 ($N{=}1$)**: `3,000` updates/task (1:1 hetero balancing) $\to$ **Stage 2 ($N{=}2$)**: `3,000` updates/task, joint CFG dropout `0.1`, $C\in\{1..4\}$, $W\in\{4..64\}$ |
-| **Flow Schedule** | 1,000 levels; SNR shift `5.0` (video), `1.0` (action); $C{=}2$ (32 actions/chunk), sliding joint KV cache $W{=}64$ |
+| **Backbone** | `Stage2WanTransformer3DModel` built on `robbyant/lingbot-va-base` (30 DiT blocks, 24 heads × 128, FFN 14336, ~6.24B params with global CA) |
+| **Encodings & Gates** | Fixed unit-RMS Fourier physical IDs $`\phi(n_k)`$ + RMS-normalized mean role vector $`r_k`$ ($`\beta = 0.01`$); global CA gate $`\gamma_b = 10^{-3}`$ |
+| **Unified Action Slots** | Shared 30-D slot layout with binary embodiment mask $`m_{e_k}`$: ALOHA 16-D (`[0..13, 28, 29]`), Panda/UR5/FR3 8-D (`[0..6, 28]`), Cobot 14-D (`[0..5, 7..12, 28, 29]`) |
+| **Video Canvas** | 3 RGB views/robot tiled onto `24×20` latent canvas (head `16×20`, wrists `8×10` each, `48` channels, patch `1×2×2` → 120 tokens/frame); missing single-arm right wrist view-masked in loss |
+| **Optimization** | 8× NVIDIA H20 GPUs, FSDP2 `bfloat16`, full activation checkpointing, batch size 8 episodes, AdamW $`\beta = (0.9, 0.95)`$, weight decay `0.1`, grad clip `2.0`, constant LR `1e-5` (`1e-4`, zero decay for $`\gamma_b`$) |
+| **Curriculum** | **Stage 1** ($`N = 1`$): `3,000` updates/task (1:1 hetero balancing) → **Stage 2** ($`N = 2`$): `3,000` updates/task, joint CFG dropout `0.1`, $`C \in \{1..4\}`$, $`W \in \{4..64\}`$ |
+| **Flow Schedule** | 1,000 levels; SNR shift `5.0` (video), `1.0` (action); $`C = 2`$ (32 actions/chunk), sliding joint KV cache $`W = 64`$ |
 | **Inference Presets** | **Benchmark**: `25` video steps (CFG `5.0`) / `50` action steps (CFG `1.0`) · **Real-Time**: `4` video / `8` action steps + fused QKV + compiled 3-D RoPE + cached text KVs + CUDA Graphs (`0.72 s/chunk` single GPU) |
 
 ### Download Released Checkpoints
@@ -223,7 +223,7 @@ python3 -m mawam.data.prepare_pairs \
   --output-root ./datasets/open_door_place_pot/stage2
 ```
 
-### Two-Stage Training (8$\times$ GPU FSDP2)
+### Two-Stage Training (8× GPU FSDP2)
 
 ```bash
 # Stage 1 (N=1, 3,000 updates)
@@ -273,7 +273,7 @@ TASK=open_door_place_pot NUM_TRIALS=100 bash scripts/eval_mabench.sh
 
 ### Real-Robot Deployment (Franka FR3 + AgileX Cobot Magic)
 
-Our heterogeneous real-robot cell pairs a 7-DoF **Franka FR3** (`8` active channels) with a dual-arm **AgileX Cobot Magic** (`14` active channels, $2\times 6$-DoF PiPER arms) at **30 Hz** control / **7.5 Hz** RGB ingestion (`mawam/inference/real_robot_client.py`). Using the `realtime` preset (`4/8` steps, `0.72 s/chunk < 1.07 s` budget), MAWAM achieves **63.3%** mean joint success across *Fruit basket* (`75.0%`), *Toy handoff & sort* (`50.0%`), and *Funnel cube pour* (`65.0%`) over 20 trials per task (vs. `13.3%` per-robot and `0.0%` joint LingBot-VA).
+Our heterogeneous real-robot cell pairs a 7-DoF **Franka FR3** (`8` active channels) with a dual-arm **AgileX Cobot Magic** (`14` active channels, 2×6-DoF PiPER arms) at **30 Hz** control / **7.5 Hz** RGB ingestion (`mawam/inference/real_robot_client.py`). Using the `realtime` preset (`4/8` steps, `0.72 s/chunk < 1.07 s` budget), MAWAM achieves **63.3%** mean joint success across *Fruit basket* (`75.0%`), *Toy handoff & sort* (`50.0%`), and *Funnel cube pour* (`65.0%`) over 20 trials per task (vs. `13.3%` per-robot and `0.0%` joint LingBot-VA).
 
 ---
 

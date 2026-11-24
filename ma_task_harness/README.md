@@ -2,10 +2,10 @@
 
 Task-agnostic coding-agent co-evolution framework from **MAWAM** (Section 3.1–3.2 & Appendix A–B).
 
-Converts **any** user-proposed multi-robot task idea ($N \ge 2$ homogeneous or heterogeneous robots, built-in or custom embodiments, open-ended predicates) into a verified, reusable task package in three stages:
+Converts **any** user-proposed multi-robot task idea ($`N \ge 2`$ homogeneous or heterogeneous robots, built-in or custom embodiments, open-ended predicates) into a verified, reusable task package in three stages:
 
-1. **Stage 1 — Specify (`specify`)**: Multi-round *Why–When–Who* clarification between User and Specifier sub-agent $\to$ validated `TaskSpec.yaml`.
-2. **Stage 2 — Co-Evolve (`coevolve`)**: Isolated code-writing sub-agents $G^{(n)}$ (owns `gen/scene.py`, `gen/expert.py`) and $E^{(n)}$ (owns deterministic, LLM-free `eval/evaluator.py`) iteratively repair each other via `audit_report.json` ($E \to G$) and `counter_audit.json` ($G \to E$), verified each round in an isolated subprocess against universal physical gates (i)–(iv), Eq. (4)–(5) milestone contracts, and Appendix A operational probes.
+1. **Stage 1 — Specify (`specify`)**: Multi-round *Why–When–Who* clarification between User and Specifier sub-agent → validated `TaskSpec.yaml`.
+2. **Stage 2 — Co-Evolve (`coevolve`)**: Isolated code-writing sub-agents $`G^{(n)}`$ (owns `gen/scene.py`, `gen/expert.py`) and $`E^{(n)}`$ (owns deterministic, LLM-free `eval/evaluator.py`) iteratively repair each other via `audit_report.json` ($`E \to G`$) and `counter_audit.json` ($`G \to E`$), verified each round in an isolated subprocess against universal physical gates (i)–(iv), Eq. (4)–(5) milestone contracts, and Appendix A operational probes.
 3. **Stage 3 — Certify & Freeze (`verify-pkg`, `render-trace`)**: Freezes a SHA-256 verified standalone package (`TaskSpec.yaml`, `gen/`, `eval/`, `probe_certificate.json`, `run_verify.py`) and renders a standalone interactive HTML trace viewer (`trace_viewer.html`).
 
 The 7 MA-Bench task specifications live under `examples/mabench/` as reference examples — the harness imposes no restriction to those tasks.
