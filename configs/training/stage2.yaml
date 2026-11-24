@@ -1,0 +1,65 @@
+# MAWAM Stage 2 Training Configuration (Paper Section 4.2-4.3 & Appendix Table 6)
+# N >= 2: synchronized multi-robot episodes with joint causal self-attention,
+# gated global cross-attention, local role cross-attention, and fixed Fourier IDs.
+
+stage: 2
+num_agents: 2
+
+architecture:
+  model_class: "Stage2WanTransformer3DModel"
+  architecture_version: "shared_theta_v1"
+  num_layers: 30
+  num_attention_heads: 24
+  attention_head_dim: 128
+  in_channels: 48
+  out_channels: 48
+  patch_size: [1, 2, 2]
+  action_dim: 30
+  action_per_frame: 16
+  text_dim: 4096
+  ffn_dim: 14336
+  stage2_gate_init: 1.0e-3
+  stage2_role_scale: 0.01
+  stage2_id_scale: 0.01
+  stage2_attention_backend: "auto"
+
+optimization:
+  world_size: 8
+  episodes_per_gpu: 1
+  global_batch_size: 8
+  updates: 3000
+  save_interval: 1000
+  optimizer: "adamw"
+  lr_shared: 1.0e-5
+  lr_global: 1.0e-5
+  lr_gate: 1.0e-4
+  betas: [0.9, 0.95]
+  weight_decay: 0.1
+  gate_weight_decay: 0.0
+  eps: 1.0e-8
+  grad_clip: 2.0
+  warmup_steps: 0
+  lr_schedule: "constant"
+  precision: "bfloat16"
+  fsdp: true
+  activation_checkpointing: "all"
+
+diffusion:
+  num_train_timesteps: 1000
+  video_snr_shift: 5.0
+  action_snr_shift: 1.0
+  sigma_min: 0.0
+  extra_one_step: true
+  cfg_dropout_prob: 0.1
+  joint_cfg_dropout: true
+  clean_video_noise_prob: 0.5
+  chunk_size_range: [1, 4]
+  window_size_range: [4, 64]
+
+data:
+  demo_pairs_per_task: 100
+  window_frames: 0  # 0 = full synchronized episode per sample
+  action_clip: 5.0
+  mask_missing_wrist_loss: true
+  rezero_inactive_action_slots: true
+  seed: 42

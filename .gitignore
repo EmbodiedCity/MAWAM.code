@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# Local artifacts & weights
+checkpoints/
+mawam_ckpts/
+datasets/
+data/
+runs/
+harness_runs/
+third_party/
+*.safetensors
+*.pt
+*.pth
+*.h5
+*.hdf5
+*.mp4.tmp
+
+# OS & editors
+.DS_Store
+.env
+.vscode/
+.idea/

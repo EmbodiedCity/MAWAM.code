@@ -1,0 +1,36 @@
+task: joint_bowl_placing
+alias: bowl
+title: Joint bowl placing
+taxonomy:
+  why: spatial
+  when: asynchronous
+  who: homogeneous
+robots:
+  - agent_id: 0
+    role_key: A
+    embodiment: aloha
+    arms: 2
+    action_dim: 16
+    missing_right_wrist: false
+  - agent_id: 1
+    role_key: B
+    embodiment: aloha
+    arms: 2
+    action_dim: 16
+    missing_right_wrist: false
+prompts:
+  global: Two robots relay the bowl from the start zone through the shared zone to the goal pad.
+  local:
+    - "Grasp the bowl on your side, place it stably in the shared exchange zone, and retreat."
+    - "Wait until the bowl rests in the shared zone, grasp it, place it on the goal pad, and retreat."
+protocol:
+  demo_pairs: 100
+  eval_trials: 100
+  nominal_duration_s: 90.0
+  control_hz: 25.0
+  physics_hz: 250.0
+  action_clip: 5.0
+checkpoint:
+  hf_repo: EmbodiedCity/MAWAM
+  hf_subdir: ckpt/MAWAM-Joint-Bowl-Placing
+taskspec: ma_task_harness/examples/mabench/joint_bowl_placing.yaml

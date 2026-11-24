@@ -1,0 +1,36 @@
+task: lift_tray_pour_food
+alias: food
+title: "Lift tray, pour food"
+taxonomy:
+  why: capability
+  when: synchronous
+  who: homogeneous
+robots:
+  - agent_id: 0
+    role_key: A
+    embodiment: aloha
+    arms: 2
+    action_dim: 16
+    missing_right_wrist: false
+  - agent_id: 1
+    role_key: B
+    embodiment: aloha
+    arms: 2
+    action_dim: 16
+    missing_right_wrist: false
+prompts:
+  global: The two robots put everything into the garbage bag together.
+  local:
+    - "You are robot A. Grasp the side of the tray near you with both arms; together with robot B, lift the tray, move it to the table edge, tilt it to pour all three items into the open bag, and keep holding the tray until the food has settled."
+    - "You are robot B. Grasp the side of the tray near you with both arms; together with robot A, lift the tray, move it to the table edge, tilt it to pour all three items into the open bag, and keep holding the tray until the food has settled."
+protocol:
+  demo_pairs: 100
+  eval_trials: 100
+  nominal_duration_s: 39.0
+  control_hz: 25.0
+  physics_hz: 250.0
+  action_clip: 5.0
+checkpoint:
+  hf_repo: EmbodiedCity/MAWAM
+  hf_subdir: ckpt/MAWAM-Lift-Tray-Pour-Food
+taskspec: ma_task_harness/examples/mabench/lift_tray_pour_food.yaml

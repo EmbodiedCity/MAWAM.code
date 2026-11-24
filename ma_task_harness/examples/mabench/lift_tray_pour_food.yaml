@@ -1,0 +1,79 @@
+task: lift_tray_pour_food
+title: "Lift tray, pour food"
+version: v3
+nominal_duration_s: 39.0
+control_hz: 25.0
+physics_hz: 250.0
+team:
+  A:
+    robot: aloha
+    arms: 2
+    action_dim: 16
+    views: [head, left_wrist, right_wrist]
+    workspace_bounds: [[-0.60, -0.50, 0.70], [0.20, 0.50, 1.35]]
+    observable_zones: [shared_zone, bag_zone]
+  B:
+    robot: aloha
+    arms: 2
+    action_dim: 16
+    views: [head, left_wrist, right_wrist]
+    workspace_bounds: [[-0.20, -0.50, 0.70], [0.60, 0.50, 1.35]]
+    observable_zones: [shared_zone, bag_zone]
+labels:
+  why: capability
+  when: synchronous
+  who: homogeneous
+prompts:
+  global: "The two robots put everything into the garbage bag together."
+  A: "You are robot A. Grasp the side of the tray near you with both arms; together with robot B, lift the tray, move it to the table edge, tilt it to pour all three items into the open bag, and keep holding until settled."
+  B: "You are robot B. Grasp the side of the tray near you with both arms; together with robot A, lift the tray, move it to the table edge, tilt it to pour all three items into the open bag, and keep holding until settled."
+thresholds:
+  lift_min_m: 0.060
+  min_pour_tilt_deg: 5.0
+  nominal_pour_tilt_deg: 8.0
+  rest_speed_mps: 0.02
+  terminal_rest_s: 0.80
+scene_params:
+  regime: sync_four_arm_pour
+  required_grippers: 4
+  food_items: [apple, carrot, cucumber]
+goal:
+  - id: goal_food_in_bag
+    kind: all_items_in_container
+    description: "Apple, carrot, and cucumber are all inside the bag and at rest."
+    params: {items: [apple, carrot, cucumber], container: bag}
+role_milestones:
+  A:
+    - id: m_A1
+      kind: bimanual_grasp
+      description: "Robot A grasps own side of tray with both hands and lifts >= 60 mm."
+      params: {agent: A, body: tray, min_lift_m: "<lift_min_m>"}
+    - id: m_A2
+      kind: synchronized_tilt
+      description: "Robot A maintains bimanual grasp while tilting tray >= 5 deg at bag."
+      params: {agent: A, body: tray, min_tilt_deg: "<min_pour_tilt_deg>"}
+  B:
+    - id: m_B1
+      kind: bimanual_grasp
+      description: "Robot B grasps own side of tray with both hands and lifts >= 60 mm."
+      params: {agent: B, body: tray, min_lift_m: "<lift_min_m>"}
+    - id: m_B2
+      kind: synchronized_tilt
+      description: "Robot B maintains bimanual grasp while tilting tray >= 5 deg at bag."
+      params: {agent: B, body: tray, min_tilt_deg: "<min_pour_tilt_deg>"}
+collab_milestones:
+  - id: c_1
+    kind: shared_transport
+    description: "All three items undergo valid four-gripper shared carry without premature drop."
+    params: {body: tray, agents: [A, B], min_duration_s: 0.40, min_xy_m: 0.05}
+  - id: c_2
+    kind: all_items_in_container
+    description: "Synchronized tilt pours all three items through bag opening to rest inside."
+    params: {items: [apple, carrot, cucumber], container: bag}
+probes:
+  necessity: [single_A, single_B, relax_O, relax_W, relax_U]
+  temporal:
+    serialize: true
+    delay_seconds: [0.04, 0.40, 1.20]
+    sync_break_tolerance_s: 0.16
+  embodiment: []

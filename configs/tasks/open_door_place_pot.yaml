@@ -1,0 +1,36 @@
+task: open_door_place_pot
+alias: door
+title: "Open door, place pot"
+taxonomy:
+  why: capability
+  when: partial
+  who: heterogeneous
+robots:
+  - agent_id: 0
+    role_key: A
+    embodiment: panda
+    arms: 1
+    action_dim: 8
+    missing_right_wrist: true
+  - agent_id: 1
+    role_key: B
+    embodiment: aloha
+    arms: 2
+    action_dim: 16
+    missing_right_wrist: false
+prompts:
+  global: "Two robots put the pot into the cabinet together: the single arm opens the door and the dual arm places the pot."
+  local:
+    - Open the cabinet door and hold it open.
+    - Lift the pot with both hands and place it inside the cabinet.
+protocol:
+  demo_pairs: 100
+  eval_trials: 100
+  nominal_duration_s: 62.08
+  control_hz: 25.0
+  physics_hz: 250.0
+  action_clip: 5.0
+checkpoint:
+  hf_repo: EmbodiedCity/MAWAM
+  hf_subdir: ckpt/MAWAM-Open-Door-Place-Pot
+taskspec: ma_task_harness/examples/mabench/open_door_place_pot.yaml

@@ -1,0 +1,87 @@
+task: joint_bowl_placing
+title: "Joint bowl placing"
+version: v3
+nominal_duration_s: 90.0
+control_hz: 25.0
+physics_hz: 250.0
+team:
+  A:
+    robot: aloha
+    arms: 2
+    action_dim: 16
+    views: [head, left_wrist, right_wrist]
+    workspace_bounds: [[-0.65, -0.55, 0.70], [0.15, 0.55, 1.35]]
+    observable_zones: [start_zone, shared_zone]
+  B:
+    robot: aloha
+    arms: 2
+    action_dim: 16
+    views: [head, left_wrist, right_wrist]
+    workspace_bounds: [[-0.15, -0.55, 0.70], [0.65, 0.55, 1.35]]
+    observable_zones: [shared_zone, goal_zone]
+labels:
+  why: spatial
+  when: asynchronous
+  who: homogeneous
+prompts:
+  global: "Two robots relay the bowl from the start zone through the shared zone to the goal pad."
+  A: "Grasp the bowl on your side, place it stably in the shared exchange zone, and retreat."
+  B: "Wait until the bowl rests in the shared zone, grasp it, place it on the goal pad, and retreat."
+thresholds:
+  lift_min_m: 0.025
+  linear_rest_mps: 0.02
+  angular_rest_radps: 0.15
+  terminal_rest_s: 0.8
+scene_params:
+  regime: spatial_relay
+  start_pos: [-0.42, 0.0, 0.74]
+  shared_bounds: [[-0.145, -0.125, 0.72], [0.145, 0.125, 0.80]]
+  goal_bounds: [[0.32, -0.125, 0.72], [0.61, 0.125, 0.80]]
+goal:
+  - id: goal_in_blue
+    kind: in_region
+    description: "Bowl lies inside the target pad region."
+    params: {body: bowl, region: goal_zone}
+  - id: goal_bowl_rest
+    kind: at_rest
+    description: "Bowl is supported and at rest in the terminal window."
+    params:
+      body: bowl
+      max_linear_speed: "<linear_rest_mps>"
+      max_angular_speed: "<angular_rest_radps>"
+      window_s: "<terminal_rest_s>"
+role_milestones:
+  A:
+    - id: m_A1
+      kind: lift
+      description: "Robot A grasps and lifts the bowl >= 25 mm from start zone."
+      params: {body: bowl, min_lift_m: "<lift_min_m>", origin_region: start_zone}
+    - id: m_A2
+      kind: in_region
+      description: "Robot A places the bowl stably in the shared exchange zone and releases."
+      params: {body: bowl, region: shared_zone, require_released: true}
+  B:
+    - id: m_B1
+      kind: lift
+      description: "Robot B grasps and lifts the bowl >= 25 mm from the shared zone."
+      params: {body: bowl, min_lift_m: "<lift_min_m>", origin_region: shared_zone}
+    - id: m_B2
+      kind: in_region
+      description: "Robot B places the bowl in the goal zone and releases."
+      params: {body: bowl, region: goal_zone, require_released: true}
+collab_milestones:
+  - id: c_1
+    kind: handoff_without_overlap
+    description: "Bowl rests in shared zone after A releases and before B grasps; no simultaneous grasp."
+    params: {body: bowl, donor: A, receiver: B, region: shared_zone}
+  - id: c_2
+    kind: no_contact
+    description: "Neither robot reaches across into the partner's exclusive workspace."
+    params: {bodies_a: ["A.*"], bodies_b: ["B.*"]}
+probes:
+  necessity: [single_A, single_B, relax_O, relax_W, relax_U]
+  temporal:
+    serialize: true
+    delay_seconds: [0.08, 0.8, 2.5]
+    sync_break_tolerance_s: 0.20
+  embodiment: []

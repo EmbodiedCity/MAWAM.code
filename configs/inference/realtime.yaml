@@ -1,0 +1,29 @@
+# MAWAM Real-Time Closed-Loop Inference Configuration (Paper Section 4.4 & Appendix D/G)
+# Reduces single-GPU median chunk latency from 3.92 s (25/50 steps) to 0.72 s (5.4x speedup)
+# without modifying model weights, enabling pause-free 30 Hz real-robot control.
+
+preset: "realtime"
+dtype: "bfloat16"
+
+chunk_frames: 2            # C = 2 latent frames -> 32 control steps (1.07 s @ 30 Hz)
+action_per_frame: 16
+window_frames: 64          # W = 64 sliding joint KV cache
+control_hz: 30.0
+video_fps: 7.5
+
+video_inference_steps: 4
+video_guidance_scale: 5.0
+video_snr_shift: 5.0
+
+action_inference_steps: 8
+action_guidance_scale: 1.0
+action_snr_shift: 1.0
+
+rezero_inactive_action_every_step: true
+pin_initial_observation: true
+use_cuda_graphs: true
+use_fused_qkv: true
+use_compiled_rope: true
+cache_text_kv: true
+async_parallel_decoding: true
+streaming_vae_cuda_graphs: true

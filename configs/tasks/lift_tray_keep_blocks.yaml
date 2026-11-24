@@ -1,0 +1,36 @@
+task: lift_tray_keep_blocks
+alias: tray
+title: "Lift tray, keep blocks"
+taxonomy:
+  why: capability
+  when: synchronous
+  who: homogeneous
+robots:
+  - agent_id: 0
+    role_key: A
+    embodiment: aloha
+    arms: 2
+    action_dim: 16
+    missing_right_wrist: false
+  - agent_id: 1
+    role_key: B
+    embodiment: aloha
+    arms: 2
+    action_dim: 16
+    missing_right_wrist: false
+prompts:
+  global: "Two dual-arm robots grasp opposite sides of the tray with four hands, transport it without toppling the block stack, and set it down."
+  local:
+    - "Grasp the two tray handles on your side, lift and transport the tray levelly with robot B, and release after set-down."
+    - "Grasp the two tray handles on your side, lift and transport the tray levelly with robot A, and release after set-down."
+protocol:
+  demo_pairs: 100
+  eval_trials: 100
+  nominal_duration_s: 40.0
+  control_hz: 25.0
+  physics_hz: 250.0
+  action_clip: 5.0
+checkpoint:
+  hf_repo: EmbodiedCity/MAWAM
+  hf_subdir: ckpt/MAWAM-Lift-Tray-Keep-Blocks
+taskspec: ma_task_harness/examples/mabench/lift_tray_keep_blocks.yaml

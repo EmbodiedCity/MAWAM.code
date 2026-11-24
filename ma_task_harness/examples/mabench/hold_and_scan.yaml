@@ -1,0 +1,90 @@
+task: hold_and_scan
+title: "Hold and scan"
+version: v1
+nominal_duration_s: 56.0
+control_hz: 25.0
+physics_hz: 250.0
+team:
+  A:
+    robot: aloha
+    arms: 2
+    action_dim: 16
+    views: [head, left_wrist, right_wrist]
+    workspace_bounds: [[-0.65, -0.50, 0.70], [0.10, 0.50, 1.35]]
+    observable_zones: [side_A, shared_zone]
+  B:
+    robot: aloha
+    arms: 2
+    action_dim: 16
+    views: [head, left_wrist, right_wrist]
+    workspace_bounds: [[-0.10, -0.50, 0.70], [0.65, 0.50, 1.35]]
+    observable_zones: [shared_zone, side_B]
+labels:
+  why: spatial
+  when: partial
+  who: homogeneous
+prompts:
+  global: "One robot presents the product box in the shared zone while the other scans its barcode, then both return their objects."
+  A: "Grasp the tea box, lift and hold it steady facing the shared zone until scanning finishes, then return it."
+  B: "Grasp the scanner, align it with the presented box for at least 0.6 s, withdraw first, and return the scanner."
+thresholds:
+  lift_min_m: 0.025
+  scan_dist_max_m: 0.14
+  scan_angle_max_deg: 20.0
+  scan_hold_s: 0.60
+  return_tol_m: 0.065
+  terminal_rest_s: 0.80
+scene_params:
+  regime: co_hold_spatial
+goal:
+  - id: goal_box_returned
+    kind: in_region
+    description: "Box returned within 65 mm of initial pose and at rest."
+    params: {body: tea_box, region: init_box_zone, require_released: true}
+  - id: goal_scanner_returned
+    kind: in_region
+    description: "Scanner returned within 65 mm of initial pose and at rest."
+    params: {body: scanner, region: init_scanner_zone, require_released: true}
+role_milestones:
+  A:
+    - id: m_A1
+      kind: lift
+      description: "Robot A grasps the tea box off tabletop >= 25 mm into the shared zone."
+      params: {body: tea_box, min_lift_m: "<lift_min_m>"}
+    - id: m_A2
+      kind: in_region
+      description: "After scanning, Robot A returns the box to tabletop rest."
+      params: {body: tea_box, region: init_box_zone, require_released: true}
+  B:
+    - id: m_B1
+      kind: align_pose
+      description: "Robot B grasps scanner and reaches valid scan alignment with held box."
+      params:
+        body: scanner
+        target: tea_box
+        max_distance_m: "<scan_dist_max_m>"
+        max_angle_deg: "<scan_angle_max_deg>"
+    - id: m_B2
+      kind: in_region
+      description: "After scanning, Robot B withdraws and returns the scanner to tabletop rest."
+      params: {body: scanner, region: init_scanner_zone, require_released: true}
+collab_milestones:
+  - id: c_1
+    kind: hold_during
+    description: "Scanner stays within distance and angle tolerance of the airborne held box for >= 0.6 s."
+    params:
+      condition: scan_alignment_valid
+      min_duration_s: "<scan_hold_s>"
+      max_distance_m: "<scan_dist_max_m>"
+      max_angle_deg: "<scan_angle_max_deg>"
+  - id: c_2
+    kind: withdrawal_order
+    description: "Scanner operator B withdraws before holder A lowers the box."
+    params: {first_agent: B, second_agent: A}
+probes:
+  necessity: [single_A, single_B, relax_O, relax_W, relax_U]
+  temporal:
+    serialize: true
+    delay_seconds: [0.08, 0.8, 2.5]
+    sync_break_tolerance_s: 0.20
+  embodiment: []

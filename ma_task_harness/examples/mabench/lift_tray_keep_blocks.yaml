@@ -1,0 +1,96 @@
+task: lift_tray_keep_blocks
+title: "Lift tray, keep blocks"
+version: v2_stack4
+nominal_duration_s: 40.0
+control_hz: 25.0
+physics_hz: 250.0
+team:
+  A:
+    robot: aloha
+    arms: 2
+    action_dim: 16
+    views: [head, left_wrist, right_wrist]
+    workspace_bounds: [[-0.60, -0.50, 0.70], [0.20, 0.50, 1.35]]
+    observable_zones: [shared_zone]
+  B:
+    robot: aloha
+    arms: 2
+    action_dim: 16
+    views: [head, left_wrist, right_wrist]
+    workspace_bounds: [[-0.20, -0.50, 0.70], [0.60, 0.50, 1.35]]
+    observable_zones: [shared_zone]
+labels:
+  why: capability
+  when: synchronous
+  who: homogeneous
+prompts:
+  global: "Two dual-arm robots grasp opposite sides of the tray with four hands, transport it without toppling the block stack, and set it down."
+  A: "Grasp the two tray handles on your side, lift and transport the tray levelly with robot B, and release after set-down."
+  B: "Grasp the two tray handles on your side, lift and transport the tray levelly with robot A, and release after set-down."
+thresholds:
+  lift_min_m: 0.085
+  shared_window_min_s: 0.40
+  transport_xy_min_m: 0.020
+  max_tilt_deg: 8.0
+  terminal_tilt_deg: 3.0
+  terminal_rest_s: 0.80
+  rest_speed_mps: 0.02
+scene_params:
+  regime: sync_four_arm_tray
+  required_grippers: 4
+  stack_blocks: 4
+goal:
+  - id: goal_tray_target
+    kind: in_region
+    description: "Tray set down in target zone with tilt < 3 deg and cargo intact."
+    params: {body: tray, region: tray_goal_zone, require_released: true}
+  - id: goal_stack_rest
+    kind: at_rest
+    description: "Tray and stacked blocks remain upright and at rest for >= 0.8 s."
+    params:
+      body: block_stack
+      max_linear_speed: "<rest_speed_mps>"
+      window_s: "<terminal_rest_s>"
+role_milestones:
+  A:
+    - id: m_A1
+      kind: bimanual_grasp
+      description: "Robot A grasps own two tray handles while tray is airborne (> 85 mm)."
+      params: {agent: A, body: tray, min_lift_m: "<lift_min_m>"}
+    - id: m_A2
+      kind: release_after
+      description: "After transport, Robot A sets down and releases tray cleanly for >= 0.8 s."
+      params: {agent: A, body: tray, event: tray_at_goal}
+  B:
+    - id: m_B1
+      kind: bimanual_grasp
+      description: "Robot B grasps own two tray handles while tray is airborne (> 85 mm)."
+      params: {agent: B, body: tray, min_lift_m: "<lift_min_m>"}
+    - id: m_B2
+      kind: release_after
+      description: "After transport, Robot B sets down and releases tray cleanly for >= 0.8 s."
+      params: {agent: B, body: tray, event: tray_at_goal}
+collab_milestones:
+  - id: c_1
+    kind: shared_transport
+    description: "Four-gripper airborne shared carry lasts >= 0.4 s with >= 20 mm horizontal transport."
+    params:
+      body: tray
+      agents: [A, B]
+      min_duration_s: "<shared_window_min_s>"
+      min_xy_m: "<transport_xy_min_m>"
+  - id: c_2
+    kind: joint_angle_le
+    description: "Tray tilt stays <= 8 deg across the entire trajectory."
+    params: {body: tray, max_tilt_deg: "<max_tilt_deg>"}
+  - id: c_3
+    kind: all_items_in_container
+    description: "All stacked blocks remain retained on the tray without toppling."
+    params: {items: [block_1, block_2, block_3, block_4], container: tray}
+probes:
+  necessity: [single_A, single_B, relax_O, relax_W, relax_U]
+  temporal:
+    serialize: true
+    delay_seconds: [0.04, 0.40, 1.20]
+    sync_break_tolerance_s: 0.16
+  embodiment: []

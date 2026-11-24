@@ -1,0 +1,82 @@
+task: find_common_color
+title: "Find common color"
+version: v2_common5
+nominal_duration_s: 13.0
+control_hz: 25.0
+physics_hz: 250.0
+team:
+  A:
+    robot: aloha
+    arms: 2
+    action_dim: 16
+    views: [head, left_wrist, right_wrist]
+    workspace_bounds: [[-1.65, -0.45, 0.70], [-0.95, 0.45, 1.30]]
+    observable_zones: [side_A]
+  B:
+    robot: aloha
+    arms: 2
+    action_dim: 16
+    views: [head, left_wrist, right_wrist]
+    workspace_bounds: [[0.95, -0.45, 0.70], [1.65, 0.45, 1.30]]
+    observable_zones: [side_B]
+labels:
+  why: information
+  when: asynchronous
+  who: homogeneous
+prompts:
+  global: "Two robots 2.7 m apart identify the single block color shared across both sides and place it on their respective pads."
+  A: "You are robot A. Pick the block whose color also appears on robot B's side and place it on your pad."
+  B: "You are robot B. Pick the block whose color also appears on robot A's side and place it on your pad."
+thresholds:
+  lift_min_m: 0.025
+  place_xy_tol_m: 0.025
+  untouched_max_disp_m: 0.012
+  terminal_rest_s: 1.0
+scene_params:
+  regime: asymmetric_info
+  separation_m: 2.7
+  palette: [red, green, blue, yellow, purple]
+goal:
+  - id: goal_a_pad
+    kind: in_region
+    description: "Robot A's shared-color block rests on pad A."
+    params: {body: target_block_A, region: pad_A, require_released: true}
+  - id: goal_b_pad
+    kind: in_region
+    description: "Robot B's shared-color block rests on pad B."
+    params: {body: target_block_B, region: pad_B, require_released: true}
+role_milestones:
+  A:
+    - id: m_A1
+      kind: lift
+      description: "Robot A grasps and lifts a candidate block >= 25 mm on side A."
+      params: {body: selected_block_A, min_lift_m: "<lift_min_m>"}
+    - id: m_A2
+      kind: in_region
+      description: "Robot A places the lifted block within 25 mm of pad A center and releases."
+      params: {body: selected_block_A, region: pad_A, require_released: true}
+  B:
+    - id: m_B1
+      kind: lift
+      description: "Robot B grasps and lifts a candidate block >= 25 mm on side B."
+      params: {body: selected_block_B, min_lift_m: "<lift_min_m>"}
+    - id: m_B2
+      kind: in_region
+      description: "Robot B places the lifted block within 25 mm of pad B center and releases."
+      params: {body: selected_block_B, region: pad_B, require_released: true}
+collab_milestones:
+  - id: c_1
+    kind: same_selected_attribute
+    description: "Both placed blocks match the unique shared color between side A and side B."
+    params: {body_a: selected_block_A, body_b: selected_block_B, attribute: color, match_shared: true}
+  - id: c_2
+    kind: untouched_distractors
+    description: "All non-target blocks move by at most 12 mm."
+    params: {max_displacement_m: "<untouched_max_disp_m>"}
+probes:
+  necessity: [single_A, single_B, relax_O, relax_W, relax_U]
+  temporal:
+    serialize: true
+    delay_seconds: [0.08, 0.8, 2.0]
+    sync_break_tolerance_s: 0.20
+  embodiment: []

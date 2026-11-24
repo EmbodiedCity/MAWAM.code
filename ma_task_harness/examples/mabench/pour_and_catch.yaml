@@ -1,0 +1,93 @@
+task: pour_and_catch
+title: "Pour and catch"
+version: v2_native
+nominal_duration_s: 38.0
+control_hz: 25.0
+physics_hz: 250.0
+team:
+  A:
+    robot: panda
+    arms: 1
+    action_dim: 8
+    views: [head, wrist]
+    workspace_bounds: [[-0.55, -0.45, 0.70], [0.15, 0.45, 1.40]]
+    observable_zones: [hopper_zone, shared_zone]
+  B:
+    robot: ur5
+    arms: 1
+    action_dim: 8
+    views: [head, wrist]
+    workspace_bounds: [[-0.15, -0.50, 0.75], [0.65, 0.50, 1.45]]
+    observable_zones: [shared_zone, cup_target_zone]
+labels:
+  why: capability
+  when: synchronous
+  who: heterogeneous
+prompts:
+  global: "Panda tilts the hopper to pour three balls while UR5 tracks the moving outlet with a cup and sets the cup on the target."
+  A: "Grasp the hopper handle, tilt the hopper to pour out the balls, and return the hopper upright."
+  B: "Grasp the receiving cup, raise and track under the moving hopper outlet to catch all balls, and place the cup on the target."
+thresholds:
+  pour_angle_min_deg: 10.0
+  return_angle_max_deg: 5.0
+  cup_target_xy_tol_m: 0.04
+  cup_rest_speed_mps: 0.02
+  cup_upright_max_deg: 10.0
+  track_xy_tol_m: 0.045
+  min_bilateral_pour_frames: 25.0
+  terminal_rest_s: 1.0
+scene_params:
+  regime: sync_hetero_pour_catch
+  balls: [ball_1, ball_2, ball_3]
+goal:
+  - id: goal_balls_caught
+    kind: all_items_in_container
+    description: "All three balls remain inside the receiving cup across the final 25 frames (1.0 s)."
+    params: {items: [ball_1, ball_2, ball_3], container: receiving_cup}
+  - id: goal_cup_target
+    kind: in_region
+    description: "Cup rests upright (< 10 deg) within 4 cm of target with UR5 released."
+    params: {body: receiving_cup, region: cup_target_zone, require_released: true}
+role_milestones:
+  A:
+    - id: m_A1
+      kind: joint_angle_ge
+      description: "Panda contacts hopper and tilts it > 10 deg."
+      params: {joint: tipping_hopper, min_deg: "<pour_angle_min_deg>", contact_agent: A, contact_body: tipping_hopper}
+    - id: m_A2
+      kind: joint_angle_le
+      description: "Panda returns hopper upright (< 5 deg) and opens gripper."
+      params: {joint: tipping_hopper, max_tilt_deg: "<return_angle_max_deg>", require_released: true}
+  B:
+    - id: m_B1
+      kind: grasp
+      description: "UR5 holds receiving cup airborne without external support during pouring."
+      params: {agent: B, body: receiving_cup, unsupported_during_pour: true}
+    - id: m_B2
+      kind: at_rest
+      description: "UR5 places receiving cup at target (< 4 cm, < 2 cm/s, < 10 deg) and releases."
+      params:
+        body: receiving_cup
+        region: cup_target_zone
+        max_linear_speed: "<cup_rest_speed_mps>"
+        window_s: "<terminal_rest_s>"
+collab_milestones:
+  - id: c_1
+    kind: track_moving_outlet
+    description: "Cup tracks moving hopper outlet across >= 25 tipping frames while airborne and collision-free."
+    params:
+      outlet_body: tipping_hopper
+      receiver_body: receiving_cup
+      max_xy_offset_m: "<track_xy_tol_m>"
+      min_frames: "<min_bilateral_pour_frames>"
+  - id: c_2
+    kind: all_items_in_container
+    description: "All three balls caught and stable inside cup across final 1.0 s."
+    params: {items: [ball_1, ball_2, ball_3], container: receiving_cup}
+probes:
+  necessity: [single_A, single_B, relax_O, relax_W, relax_U]
+  temporal:
+    serialize: true
+    delay_seconds: [0.04, 0.40, 1.20]
+    sync_break_tolerance_s: 0.16
+  embodiment: [role_swap]

@@ -1,0 +1,97 @@
+task: open_door_place_pot
+title: "Open door, place pot"
+version: v4
+nominal_duration_s: 62.08
+control_hz: 25.0
+physics_hz: 250.0
+team:
+  A:
+    robot: panda
+    arms: 1
+    action_dim: 8
+    views: [head, wrist]
+    workspace_bounds: [[-0.55, -0.45, 0.70], [0.25, 0.45, 1.40]]
+    observable_zones: [cabinet_front, shared_zone]
+  B:
+    robot: aloha
+    arms: 2
+    action_dim: 16
+    views: [head, left_wrist, right_wrist]
+    workspace_bounds: [[-0.35, -0.55, 0.70], [0.55, 0.55, 1.35]]
+    observable_zones: [pot_start, cabinet_front, shared_zone]
+labels:
+  why: capability
+  when: partial
+  who: heterogeneous
+prompts:
+  global: "Two robots put the pot into the cabinet together: the single arm opens the door and the dual arm places the pot."
+  A: "Open the cabinet door and hold it open."
+  B: "Lift the pot with both hands and place it inside the cabinet."
+thresholds:
+  th_open_deg: 140.0
+  pot_lift_min_m: 0.05
+  pot_rest_speed_mps: 0.05
+  terminal_rest_s: 0.80
+scene_params:
+  regime: spring_door_bimanual_insert
+  door_stiffness_nm_per_rad: 0.35
+  door_damping_nms_per_rad: 0.60
+  cabinet_aperture_m: 0.44
+  pot_requires_bimanual: true
+goal:
+  - id: goal_pot_inside
+    kind: in_region
+    description: "Pot is supported upright inside the cabinet shelf."
+    params: {body: pot, region: cabinet_interior, require_released: true}
+  - id: goal_pot_rest
+    kind: at_rest
+    description: "Pot remains at rest (<= 5 cm/s) across the terminal 20 frames (0.8 s)."
+    params:
+      body: pot
+      max_linear_speed: "<pot_rest_speed_mps>"
+      window_s: "<terminal_rest_s>"
+role_milestones:
+  A:
+    - id: m_A1
+      kind: joint_angle_ge
+      description: "Panda contacts handle and opens spring-loaded cabinet door beyond 140 deg."
+      params: {joint: cabinet_door, min_deg: "<th_open_deg>", contact_agent: A, contact_body: door}
+    - id: m_A2
+      kind: release_after
+      description: "Panda maintains door hold throughout actual pot carry/insertion window."
+      params: {agent: A, body: door, event: pot_inside, min_deg: "<th_open_deg>"}
+  B:
+    - id: m_B1
+      kind: bimanual_grasp
+      description: "ALOHA grasps both pot handles and lifts pot >= 50 mm."
+      params: {agent: B, body: pot, min_lift_m: "<pot_lift_min_m>"}
+    - id: m_B2
+      kind: retreat
+      description: "ALOHA places pot inside cabinet, releases both grippers, and withdraws cleanly."
+      params: {agent: B, body: pot, region: cabinet_interior}
+collab_milestones:
+  - id: c_1
+    kind: hold_during
+    description: "Spring door stays >= 140 deg with continuous Panda contact across B's entire carry/insertion window, with zero arm-door collision."
+    params:
+      condition: door_open_during_carry
+      joint: cabinet_door
+      min_deg: "<th_open_deg>"
+      holder_agent: A
+      mover_agent: B
+      forbid_contact_bodies: ["B.*", "door"]
+  - id: c_2
+    kind: at_rest
+    description: "Pot remains inside, upright, released, and stable throughout the final 20 frames."
+    params:
+      body: pot
+      region: cabinet_interior
+      max_linear_speed: "<pot_rest_speed_mps>"
+      window_s: "<terminal_rest_s>"
+probes:
+  necessity: [single_A, single_B, relax_O, relax_W, relax_U]
+  temporal:
+    serialize: true
+    delay_seconds: [0.08, 0.8, 2.5]
+    sync_break_tolerance_s: 0.20
+  embodiment: [role_swap]

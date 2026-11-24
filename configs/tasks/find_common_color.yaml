@@ -1,0 +1,36 @@
+task: find_common_color
+alias: color
+title: Find common color
+taxonomy:
+  why: information
+  when: asynchronous
+  who: homogeneous
+robots:
+  - agent_id: 0
+    role_key: A
+    embodiment: aloha
+    arms: 2
+    action_dim: 16
+    missing_right_wrist: false
+  - agent_id: 1
+    role_key: B
+    embodiment: aloha
+    arms: 2
+    action_dim: 16
+    missing_right_wrist: false
+prompts:
+  global: Two robots 2.7 m apart identify the single block color shared across both sides and place it on their respective pads.
+  local:
+    - You are robot A. Pick the block whose color also appears on robot B's side and place it on your pad.
+    - You are robot B. Pick the block whose color also appears on robot A's side and place it on your pad.
+protocol:
+  demo_pairs: 100
+  eval_trials: 100
+  nominal_duration_s: 13.0
+  control_hz: 25.0
+  physics_hz: 250.0
+  action_clip: 5.0
+checkpoint:
+  hf_repo: EmbodiedCity/MAWAM
+  hf_subdir: ckpt/MAWAM-Find-Common-Color
+taskspec: ma_task_harness/examples/mabench/find_common_color.yaml

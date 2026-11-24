@@ -1,0 +1,36 @@
+task: pour_and_catch
+alias: balls
+title: Pour and catch
+taxonomy:
+  why: capability
+  when: synchronous
+  who: heterogeneous
+robots:
+  - agent_id: 0
+    role_key: A
+    embodiment: panda
+    arms: 1
+    action_dim: 8
+    missing_right_wrist: true
+  - agent_id: 1
+    role_key: B
+    embodiment: ur5
+    arms: 1
+    action_dim: 8
+    missing_right_wrist: true
+prompts:
+  global: Panda tilts the hopper to pour three balls while UR5 tracks the moving outlet with a cup and sets the cup on the target.
+  local:
+    - "Grasp the hopper handle, tilt the hopper to pour out the balls, and return the hopper upright."
+    - "Grasp the receiving cup, raise and track under the moving hopper outlet to catch all balls, and place the cup on the target."
+protocol:
+  demo_pairs: 100
+  eval_trials: 100
+  nominal_duration_s: 38.0
+  control_hz: 25.0
+  physics_hz: 250.0
+  action_clip: 5.0
+checkpoint:
+  hf_repo: EmbodiedCity/MAWAM
+  hf_subdir: ckpt/MAWAM-Pour-and-Catch
+taskspec: ma_task_harness/examples/mabench/pour_and_catch.yaml

@@ -1,0 +1,36 @@
+task: hold_and_scan
+alias: scan
+title: Hold and scan
+taxonomy:
+  why: spatial
+  when: partial
+  who: homogeneous
+robots:
+  - agent_id: 0
+    role_key: A
+    embodiment: aloha
+    arms: 2
+    action_dim: 16
+    missing_right_wrist: false
+  - agent_id: 1
+    role_key: B
+    embodiment: aloha
+    arms: 2
+    action_dim: 16
+    missing_right_wrist: false
+prompts:
+  global: "One robot presents the product box in the shared zone while the other scans its barcode, then both return their objects."
+  local:
+    - "Grasp the box, lift and hold it steady facing the shared zone until scanning finishes, then return it."
+    - "Grasp the scanner, align it with the presented box for at least 0.6 s, withdraw first, and return the scanner."
+protocol:
+  demo_pairs: 100
+  eval_trials: 100
+  nominal_duration_s: 56.0
+  control_hz: 25.0
+  physics_hz: 250.0
+  action_clip: 5.0
+checkpoint:
+  hf_repo: EmbodiedCity/MAWAM
+  hf_subdir: ckpt/MAWAM-Hold-and-Scan
+taskspec: ma_task_harness/examples/mabench/hold_and_scan.yaml

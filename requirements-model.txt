@@ -1,0 +1,16 @@
+# Model training & inference environment (CUDA PyTorch >= 2.5 / 2.9 recommended)
+diffusers==0.36.0
+transformers==4.55.2
+einops==0.8.1
+safetensors==0.6.2
+accelerate==1.11.0
+huggingface_hub>=0.25.0
+websockets==14.2
+msgpack>=1.0.8
+msgpack-numpy==0.4.8
+easydict==1.13
+sentencepiece==0.2.1
+PyYAML==6.0.3
+psutil
+httpx
+scipy

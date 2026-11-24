@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mawam"
+version = "0.1.0"
+description = "MAWAM: Joint Imagination for Collaborative Robot Manipulation with a Multi-Agent World Action Model"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+authors = [
+    { name = "Rongze Tang" },
+    { name = "Chenyu Zhou" },
+    { name = "Jianjie Fang" },
+    { name = "Ziming Liu" },
+    { name = "Zhaolu Wang" },
+    { name = "Ziyou Wang" },
+    { name = "Xvyuan Liu" },
+    { name = "Wei Wu" },
+    { name = "Chen Gao", email = "chgao96@gmail.com" },
+    { name = "Yong Li" },
+    { name = "Zhibo Chen", email = "chenzhibo@ustc.edu.cn" },
+]
+dependencies = [
+    "numpy>=1.24",
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+model = [
+    "torch>=2.5",
+    "diffusers==0.36.0",
+    "transformers==4.55.2",
+    "einops==0.8.1",
+    "safetensors==0.6.2",
+    "accelerate==1.11.0",
+    "websockets==14.2",
+    "msgpack>=1.0",
+    "msgpack-numpy==0.4.8",
+    "easydict==1.13",
+    "sentencepiece==0.2.1",
+    "scipy>=1.11",
+    "huggingface_hub>=0.25",
+]
+sim = [
+    "sapien==3.0.0b1",
+    "mplib==0.2.1",
+    "scipy>=1.11",
+    "transforms3d==0.4.2",
+    "trimesh==4.4.3",
+    "h5py>=3.10",
+    "imageio>=2.34",
+    "websockets==14.2",
+    "msgpack-numpy==0.4.8",
+    "gymnasium==1.0.0",
+    "omegaconf==2.3.0",
+]
+
+[project.scripts]
+mawam-harness = "ma_task_harness.orchestrator.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["ma_task_harness*", "ma_bench*", "mawam*"]
