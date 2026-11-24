@@ -7,14 +7,14 @@ dist/
 build/
 .pytest_cache/
 
-# Local artifacts & weights
-checkpoints/
-mawam_ckpts/
-datasets/
-data/
-runs/
-harness_runs/
-third_party/
+# Local artifacts & weights (root-anchored so Python subpackages like mawam/data/ are tracked)
+/checkpoints/
+/mawam_ckpts/
+/datasets/
+/data/
+/runs/
+/harness_runs/
+/third_party/
 *.safetensors
 *.pt
 *.pth
